@@ -1,0 +1,40 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ .Release.Name }}
+  annotations:
+    {{- if .Values.ingress.clusterIssuer }}
+    cert-manager.io/issuer: {{ .Values.ingress.clusterIssuer }}
+    {{- end }}
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+spec:
+  ingressClassName: {{ .Values.ingress.class }}
+  rules:
+  - host: {{ .Values.ingress.panel }}
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: panel
+            port:
+              number: 80
+      tls:
+      - secretName: {{ .Release.Name }}-tls
+        hosts:
+        - {{ .Values.ingress.panel }}
+  - host: {{ .Values.ingress.kuber }}
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: kuber
+            port:
+              number: 80
+      tls:
+      - secretName: {{ .Release.Name }}-tls
+        hosts:
+        - {{ .Values.ingress.kuber }}      

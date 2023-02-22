@@ -1,0 +1,35 @@
+ingress:
+  class: nginx
+  panel: panel.example.com
+  kuber: kuber.example.com
+  clusterIssuer: letsencrypt-prod
+panel:
+  image: ghcr.io/kubectyl/panel:develop
+  storageClassName: local-path
+kuber:
+  image: ghcr.io/kubectyl/kuber:develop
+mariadb:
+  global:
+    storageClass: local-path
+  auth:
+    database: panel
+    username: kubectyl
+    password: SecretPassword
+    rootPassword: SuperSecretPassword
+  primary:
+    persistence:
+      size: 1Gi
+  secondary:
+    replicaCount: 0
+redis:
+  global:
+    storageClass: local-path
+  auth:
+    enabled: false
+  master:
+    persistence:
+      size: 1Gi
+  replica:
+    replicaCount: 0
+  sentinel:
+    enabled: false
