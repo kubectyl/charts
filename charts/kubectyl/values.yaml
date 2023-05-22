@@ -1,35 +1,71 @@
+# Default values for Kubectyl.
+# This is a YAML-formatted file.
+# Declare name/value pairs to be passed into your templates.
+# name: value
+
+## Overrides for generated resource names
+# See templates/_helpers.tpl
 ingress:
+  # The Ingress class for routing external traffic to services
   class: nginx
+  # The hostname for the Panel application
   panel: panel.example.com
+  # The hostname for the Kuber application
   kuber: kuber.example.com
+  # The issuer to use for obtaining TLS certificates
   clusterIssuer: letsencrypt-prod
 panel:
-  image: ghcr.io/kubectyl/panel:develop
-  storageClassName: local-path
+  # The image for the Panel application
+  image: quay.io/kubectyl/panel:latest
+  # The storage class to use for Panel's persistent volume
+  # To use default K8s storage class set this value to ""
+  storageClass: ""
+  # The email address for Letsencrypt
+  # Used for Panel only as a reference to enable cert-manager
+  email: abc@gmail.com
 kuber:
-  image: ghcr.io/kubectyl/kuber:develop
+  # The image for the Kuber application
+  image: quay.io/kubectyl/kuber:latest
+  # Will be automatically set to 1 after Panel installation
+  replicaCount: 0
 mariadb:
   global:
-    storageClass: local-path
+    storageClass: ""
   auth:
+    # The MariaDB database name
     database: panel
+    # The MariaDB username
     username: kubectyl
+    # The MariaDB password for the user
     password: SecretPassword
+    # The MariaDB root password
     rootPassword: SuperSecretPassword
   primary:
     persistence:
+      # The size of the primary MariaDB pod's persistent volume
       size: 1Gi
   secondary:
+    # The number of secondary MariaDB replicas
     replicaCount: 0
 redis:
   global:
-    storageClass: local-path
+    # The global storage class for Redis pods
+    storageClass: ""
   auth:
+    # Enable authentication for Redis
     enabled: false
   master:
     persistence:
+      # The size of the Redis master pod's persistent volume
       size: 1Gi
   replica:
+    # The number of Redis replicas
     replicaCount: 0
   sentinel:
+    # Enable Redis sentinel for high availability
     enabled: false
+serviceAccount:
+  # Enable the creation of a ServiceAccount for MariaDB pods
+  create: true
+  # If not set and create is true, a name is generated using the mariadb.fullname template
+  name: ""

@@ -1,0 +1,21 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: {{ include "common.names.fullname" . }}
+  namespace: {{ .Release.Namespace | quote }}
+rules:
+- apiGroups: ["apps"]
+  resources: ["deployments"]
+  verbs: ["patch"]
+- apiGroups: [""]
+  resources: ["pods", "pods/log"]
+  verbs: ["create", "delete", "update", "get", "watch", "exec", "list", "deletecollection"]
+- apiGroups: [""]
+  resources: ["configmaps", "services", "secrets", "persistentvolumeclaims"]
+  verbs: ["create", "delete", "update", "get", "list", "deletecollection"]
+- apiGroups: [""]
+  resources: ["events"]
+  verbs: ["list", "watch"]
+- apiGroups: ["snapshot.storage.k8s.io"]
+  resources: ["volumesnapshots"]
+  verbs: ["create", "delete", "get"]

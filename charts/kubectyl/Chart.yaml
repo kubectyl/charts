@@ -1,6 +1,23 @@
 apiVersion: v2
 name: kubectyl
+home: https://kubectyl.org
 description: Put your servers on autopilot with Kubernetes implementation and get rid of Pterodactyl nodes.
+sources:
+  - https://github.com/kubectyl/panel
+  - https://github.com/kubectyl/kuber
+  - https://github.com/pterodactyl/panel
+  - https://github.com/pterodactyl/wings
+maintainers:
+  - name: andrei0465
+    email: andrei.mociu@kubectyl.org
+keywords:
+  - kubectyl
+  - panel
+  - kuber
+  - client
+  - kubernetes
+  - k8s
+  - autopilot
 type: application
 version: 0.1.0
 appVersion: "0.1.0"

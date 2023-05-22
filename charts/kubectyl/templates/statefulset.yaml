@@ -1,24 +1,8 @@
-apiVersion: v1
-kind: Service
-metadata:
-  name: panel
-  labels:
-    app: panel
-spec:
-  ports:
-  - port: 80
-    name: web
-  selector:
-    app: panel
----
-{{- define "panel.fullname" -}}
-{{- printf "panel-%s-%s" .Release.Name .Chart.Name | trunc 63 | trimSuffix "-" -}}
-{{- end -}}
-
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: {{ template "panel.fullname" . }}
+  name: {{ include "panel.fullname" . }}
+  namespace: {{ .Release.Namespace | quote }}
 spec:
   selector:
     matchLabels:
@@ -31,6 +15,7 @@ spec:
       labels:
         app: panel
     spec:
+      serviceAccountName: {{ include "kubectyl.serviceAccountName" . }}
       terminationGracePeriodSeconds: 10
       containers:
       - name: panel
@@ -42,6 +27,9 @@ spec:
         - containerPort: 80
           name: web
         volumeMounts:
+        - name: ssl-certs
+          mountPath: /etc/nginx/certs
+          readOnly: true
         - name: panel
           mountPath: /app/var/
           subPath: var
@@ -51,13 +39,19 @@ spec:
         - name: panel
           mountPath: /app/storage/logs/
           subPath: logs
+      volumes:
+        - name: ssl-certs
+          secret:
+            secretName: {{ .Release.Name }}-tls
   volumeClaimTemplates:
   - metadata:
       name: panel
     spec:
       accessModes:
       - "ReadWriteOnce"
-      storageClassName: {{ .Values.panel.storageClassName }}
+      {{- if .Values.storageClassName }}
+      storageClassName: {{ .Values.storageClassName }}
+      {{- end }}
       resources:
         requests:
           storage: 1Gi

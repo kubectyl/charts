@@ -2,11 +2,15 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: {{ .Release.Name }}
+  namespace: {{ .Release.Namespace | quote }}
   annotations:
     {{- if .Values.ingress.clusterIssuer }}
     cert-manager.io/issuer: {{ .Values.ingress.clusterIssuer }}
     {{- end }}
     nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/proxy-body-size: 100m
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "120s"
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
 spec:
   ingressClassName: {{ .Values.ingress.class }}
   rules:
@@ -17,13 +21,9 @@ spec:
         pathType: Prefix
         backend:
           service:
-            name: panel
+            name: {{ include "panel.fullname" . }}
             port:
-              number: 80
-      tls:
-      - secretName: {{ .Release.Name }}-tls
-        hosts:
-        - {{ .Values.ingress.panel }}
+              number: 443
   - host: {{ .Values.ingress.kuber }}
     http:
       paths:
@@ -31,10 +31,11 @@ spec:
         pathType: Prefix
         backend:
           service:
-            name: kuber
+            name: {{ include "kuber.fullname" . }}
             port:
-              number: 80
-      tls:
-      - secretName: {{ .Release.Name }}-tls
-        hosts:
-        - {{ .Values.ingress.kuber }}      
+              number: 443
+  tls:
+    - secretName: {{ .Release.Name }}-tls
+      hosts:
+      - {{ .Values.ingress.panel }}
+      - {{ .Values.ingress.kuber }}
