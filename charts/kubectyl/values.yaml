@@ -31,6 +31,11 @@ kuber:
 mariadb:
   global:
     storageClass: ""
+  # FATAL ERROR: Upgrade failed
+  volumePermissions:
+    enabled: true
+  image:
+    debug: true
   auth:
     # The MariaDB database name
     database: panel
