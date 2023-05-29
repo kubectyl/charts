@@ -1,7 +1,8 @@
-name: release
+name: push
 on:
   push:
-    tags: '*'
+    branches:
+      - main
 
 jobs:
   release:
